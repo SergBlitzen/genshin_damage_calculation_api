@@ -160,4 +160,4 @@ cython_debug/
 .idea/
 
 # Excluded data.
-static/
+genshin_calculator/static/
