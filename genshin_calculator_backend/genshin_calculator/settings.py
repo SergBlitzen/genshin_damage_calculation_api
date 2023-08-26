@@ -1,51 +1,64 @@
 import os
 from pathlib import Path
+from dataclasses import dataclass
 
 from dotenv import load_dotenv
 
+load_dotenv()
 
+
+@dataclass
 class Loader:
+    """
+    Main class for managing environment variables.
+    Adjust URL section and below according to selected resource.
+    """
+
     # Django secret key.
     secret_key: str = os.getenv('SECRET_KEY')
 
     # Debug settings.
     debug: bool = bool(os.getenv('DEBUG'))
 
+    # URLs.
+    main_url: str = os.getenv('MAIN_URL')
+    sword_url: str = os.getenv('SWORD_URL')
+    claymore_url: str = os.getenv('CLAYMORE_URL')
+    polearm_url: str = os.getenv('POLEARM_URL')
+    bow_url: str = os.getenv('BOW_URL')
+    catalyst_url: str = os.getenv('CATALYST_URL')
+
+    # Main data.
+    main_data = os.getenv('MAIN_DATA')
+
+    # Main class.
+    main_class: str = os.getenv('MAIN_CLASS')
+    stat_class: str = os.getenv('STAT_CLASS')
+
+    # Main elements.
+    main_elem: str = os.getenv('MAIN_ELEM')
+    second_elem: str = os.getenv('SECOND_ELEM')
+
     # Character page elements.
     character_urls: str = os.getenv('CHAR_LIST_URL')
-    character_url: str = os.getenv('MAIN_URL')
-    char_data: str = os.getenv('CHAR_DATA')
-    character_main_class: str = os.getenv('MAIN_CLASS')
-    character_main_elem: str = os.getenv('MAIN_ELEM')
-    character_second_elem: str = os.getenv('SECOND_ELEM')
-    character_stat_class: str = os.getenv('STAT_CLASS')
     character_skill_class: str = os.getenv('SKILL_CLASS')
     character_dmg_class: str = os.getenv('DMG_CLASS')
-    character_stats_elem_number: str = os.getenv('STATS_ELEMENTS_NUMBER')
+    character_elem_number: int = int(os.getenv('CHARACTERELEMENTS_NUMBER'))
 
-    def __init__(self):
-        load_dotenv()
+    # Weapon page elements.
+    weapon_elem_number: int = int(os.getenv('WEAPONELEMENTS_NUMBER'))
 
 
 env_loader = Loader()
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = env_loader.secret_key
 
-# SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env_loader.debug
 
 ALLOWED_HOSTS = []
 
-
-# Application definition
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -90,9 +103,6 @@ TEMPLATES = [
 WSGI_APPLICATION = 'genshin_calculator.wsgi.application'
 
 
-# Database
-# https://docs.djangoproject.com/en/4.1/ref/settings/#databases
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -100,9 +110,6 @@ DATABASES = {
     }
 }
 
-
-# Password validation
-# https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -120,9 +127,6 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
-# Internationalization
-# https://docs.djangoproject.com/en/4.1/topics/i18n/
-
 LANGUAGE_CODE = 'en-us'
 
 TIME_ZONE = 'UTC'
@@ -132,12 +136,7 @@ USE_I18N = True
 USE_TZ = True
 
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/4.1/howto/static-files/
-
 STATIC_URL = 'static/'
 
-# Default primary key field type
-# https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

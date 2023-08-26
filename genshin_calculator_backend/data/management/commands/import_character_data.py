@@ -21,6 +21,7 @@ class Command(BaseCommand):
         """
         Main handler for import page data.
         """
+
         main_url = env_loader.character_urls
         urls = get_character_urls(main_url)
         self.stdout.write("Got character URLs!")
@@ -42,7 +43,7 @@ class Command(BaseCommand):
             time.sleep(1 + (random.randint(1, 100) / 100))
 
         end = time.time()
-        self.stdout.write(f"Data import complete. Time elapsed: {end - start}")
+        self.stdout.write(f"Data import complete. Time elapsed: {round(end - start)}")
 
 
 def get_character_urls(pages_url: str) -> List[str]:
@@ -61,7 +62,7 @@ def get_character_urls(pages_url: str) -> List[str]:
     # cannot process it fully, so there is some manual
     # processing to get data.
     soup = BeautifulSoup(request_data, "html.parser")
-    char_data: str = env_loader.char_data
+    char_data: str = env_loader.main_data
     chars = soup.find(text=re.compile(char_data))
     start_char_index: int = env_loader.start_char_ind
     end_char_index: int = env_loader.end_char_ind
@@ -71,15 +72,14 @@ def get_character_urls(pages_url: str) -> List[str]:
     # separate arrays, URLs are found in the beginning
     # of each array and parsed by simple string slicing.
     start_index: Union[int, None] = None
-    start_slice_index: int = env_loader.start_url_ind
-    end_slice_index: int = env_loader.end_url_ind
-    url: str = env_loader.url
+    start_slice_index: int = env_loader.character_elem_number
+    url: str = env_loader.main_url
     for i in range(0, len(chars)):
         if chars[i] == '[':
             start_index = i + start_slice_index
             continue
         if chars[i] == '>' and start_index:
-            end_index = i - end_slice_index
+            end_index = i - 2
             char_url = url + "".join(chars[start_index:end_index].split('\\'))
             char_urls.append(char_url)
             start_index = None
@@ -101,16 +101,16 @@ def get_character_data(char_url: str) -> Dict[str, str | Dict[str, str | Dict[st
     request_data = request.text
 
     # Getting main parsing element.
-    main_elem = env_loader.character_main_elem
+    main_elem = env_loader.main_elem
 
     # Parsing is divided by functions.
     soup = BeautifulSoup(request_data, "html.parser")
 
-    main_info_class: str = env_loader.character_main_class
+    main_info_class: str = env_loader.main_class
     main_info = soup.find(class_=main_info_class).find_all(main_elem)
     get_main_info(main_info, char_data)
 
-    main_stats_class: str = env_loader.character_stat_class
+    main_stats_class: str = env_loader.stat_class
     main_stats = soup.find(class_=main_stats_class)
     get_character_main_stats(main_stats, char_data)
 
@@ -166,8 +166,8 @@ def get_character_main_stats(char_page: BeautifulSoup, char_data: Dict) -> None:
     """
 
     # Stat names for creating new variable dicts.
-    main_elem: str = env_loader.character_main_elem
-    second_elem: str = env_loader.character_second_elem
+    main_elem: str = env_loader.main_elem
+    second_elem: str = env_loader.second_elem
     stats_names = char_page.find(main_elem).find_all(second_elem)[:7]
     for name in stats_names:
         # Replace bonus stat with ascension.
@@ -212,14 +212,14 @@ def get_character_skills(skill_table: BeautifulSoup, char_data: Dict, skill_type
     char_data[skill_type] = {}
 
     # Getting elements for page parsing.
-    main_elem: str = env_loader.character_main_elem
-    second_elem: str = env_loader.character_second_elem
+    main_elem: str = env_loader.ain_elem
+    second_elem: str = env_loader.second_elem
     dmg_class: str = env_loader.character_dmg_class
 
     skill_rows = skill_table.find(class_=dmg_class).find(second_elem).find_all(main_elem)
 
     # As there are exact number of elements in each row and page parses wrong
-    # without closing "tr" tags, stats can be parsed as slices.
+    # without closing tags, stats can be parsed as slices.
     skill_stats_elements: int = int(env_loader.character_stats_elem_number)
     skill_list: list = []
     for _ in range(len(skill_rows) // skill_stats_elements):
@@ -233,7 +233,7 @@ def get_character_skills(skill_table: BeautifulSoup, char_data: Dict, skill_type
     levels = list(map(BeautifulSoup.get_text, skill_list[0][1:]))
     skill_list.pop(0)
 
-    # Parsing normal atk stats. First element in row in a stat name,
+    # Parsing normal atk stats. First element in row is a stat name,
     # and the rest of data are stripped from tags and zipped with levels
     # list into dictionary with same name.
     for stat in skill_list:

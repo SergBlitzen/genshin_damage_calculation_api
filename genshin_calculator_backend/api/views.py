@@ -2,7 +2,8 @@ from django.shortcuts import get_object_or_404
 
 from rest_framework import viewsets
 
-from api.serializers import CharacterSerializer
+
+from api.serializers import CharacterSerializer, WeaponSerializer
 from data.models import Character, Weapon
 
 
@@ -21,3 +22,4 @@ class WeaponViewSet(viewsets.ModelViewSet):
     """
 
     queryset = Weapon.objects.all()
+    serializer_class = WeaponSerializer

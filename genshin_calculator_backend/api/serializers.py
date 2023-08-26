@@ -2,7 +2,7 @@ import json
 
 from rest_framework import serializers
 
-from data.models import Character
+from data.models import Character, Weapon
 
 
 class CharacterSerializer(serializers.ModelSerializer):
@@ -29,7 +29,6 @@ class CharacterSerializer(serializers.ModelSerializer):
     class Meta:
         model = Character
         fields = '__all__'
-        read_only_fields = '__all__'
 
     # There is no other way to load all attributes from JSON
     # in one method, so for now it's manual.
@@ -72,6 +71,30 @@ class CharacterSerializer(serializers.ModelSerializer):
     def get_sprint(self, value):
         if value.sprint:
             data = json.loads(value.sprint)
+            return data
+        else:
+            return None
+
+
+class WeaponSerializer(serializers.ModelSerializer):
+    name = serializers.CharField()
+    short_name = serializers.CharField()
+    type = serializers.CharField()
+    atk = serializers.SerializerMethodField()
+    substat_name = serializers.CharField()
+    substat_lv = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Weapon
+        fields = ['name', 'short_name', 'type', 'substat_name', 'atk', 'substat_lv']
+
+    def get_atk(self, value):
+        data = json.loads(value.atk)
+        return data
+
+    def get_substat_lv(self, value):
+        if value.substat_lv:
+            data = json.loads(value.substat_lv)
             return data
         else:
             return None
