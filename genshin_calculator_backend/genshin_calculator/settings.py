@@ -43,10 +43,10 @@ class Loader:
     character_urls: str = os.getenv('CHAR_LIST_URL')
     character_skill_class: str = os.getenv('SKILL_CLASS')
     character_dmg_class: str = os.getenv('DMG_CLASS')
-    character_elem_number: int = int(os.getenv('CHARACTERELEMENTS_NUMBER'))
+    character_elem_number: int = int(os.getenv('CHARACTER_ELEMENTS_NUMBER'))
 
     # Weapon page elements.
-    weapon_elem_number: int = int(os.getenv('WEAPONELEMENTS_NUMBER'))
+    weapon_elem_number: int = int(os.getenv('WEAPON_ELEMENTS_NUMBER'))
 
 
 env_loader = Loader()
