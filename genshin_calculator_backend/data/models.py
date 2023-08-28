@@ -2,6 +2,11 @@ from django.db import models
 
 
 class Character(models.Model):
+    """
+    Character model. All dictionary-like values
+    are store within JSON fields.
+    """
+
     name = models.CharField(max_length=255)
     short_name = models.CharField(max_length=255, unique=True)
     weapon = models.CharField(max_length=255)
@@ -20,6 +25,11 @@ class Character(models.Model):
 
 
 class Weapon(models.Model):
+    """
+    Weapon model. All dictionary-like values
+    are store within JSON fields.
+    """
+
     name = models.CharField(max_length=255)
     short_name = models.CharField(max_length=255, unique=True)
     type = models.CharField(max_length=255)

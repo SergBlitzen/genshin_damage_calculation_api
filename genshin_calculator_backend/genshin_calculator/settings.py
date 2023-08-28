@@ -43,10 +43,10 @@ class Loader:
     character_urls: str = os.getenv('CHAR_LIST_URL')
     character_skill_class: str = os.getenv('SKILL_CLASS')
     character_dmg_class: str = os.getenv('DMG_CLASS')
-    character_elem_number: int = int(os.getenv('CHARACTERELEMENTS_NUMBER'))
+    character_elem_number: int = int(os.getenv('CHARACTER_ELEMENTS_NUMBER'))
 
     # Weapon page elements.
-    weapon_elem_number: int = int(os.getenv('WEAPONELEMENTS_NUMBER'))
+    weapon_elem_number: int = int(os.getenv('WEAPON_ELEMENTS_NUMBER'))
 
 
 env_loader = Loader()
@@ -57,20 +57,29 @@ SECRET_KEY = env_loader.secret_key
 
 DEBUG = env_loader.debug
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
-INSTALLED_APPS = [
+FIRST_PARTY_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+]
+
+THIRD_PARTY_APPS = [
     'rest_framework',
+    'django_filters',
+]
+
+LOCAL_APPS = [
     'api',
     'data',
 ]
+
+INSTALLED_APPS = FIRST_PARTY_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

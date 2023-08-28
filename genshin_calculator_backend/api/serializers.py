@@ -77,6 +77,10 @@ class CharacterSerializer(serializers.ModelSerializer):
 
 
 class WeaponSerializer(serializers.ModelSerializer):
+    """
+    Serializer for weapon objects. Read-only.
+    """
+
     name = serializers.CharField()
     short_name = serializers.CharField()
     type = serializers.CharField()
@@ -98,3 +102,37 @@ class WeaponSerializer(serializers.ModelSerializer):
             return data
         else:
             return None
+
+
+class ElementalDamageSerializer(serializers.Serializer):
+    pyro_damage_bonus = serializers.CharField()
+    hydro_damage_bonus = serializers.CharField()
+    cryo_damage_bonus = serializers.CharField()
+    electro_damage_bonus = serializers.CharField()
+    geo_damage_bonus = serializers.CharField()
+    dendro_damage_bonus = serializers.CharField()
+    anemo_damage_bonus = serializers.CharField()
+    physical_damage_bonus = serializers.CharField()
+
+
+class SkillDamageSerializer(serializers.Serializer):
+    normal_attack = serializers.JSONField()
+    elemental_skill = serializers.JSONField()
+    elemental_burst = serializers.JSONField()
+
+
+class CalculationSerializer(serializers.Serializer):
+    character_name = serializers.CharField()
+    character_level = serializers.CharField()
+    weapon_name = serializers.CharField()
+    weapon_level = serializers.CharField()
+    hp = serializers.CharField()
+    atk = serializers.CharField()
+    defense = serializers.CharField()
+    elemental_mastery = serializers.CharField()
+    energy_recharge = serializers.CharField()
+    crit_rate = serializers.CharField()
+    crit_damage = serializers.CharField()
+    elemental_damage_bonus = ElementalDamageSerializer(many=True)
+    skill_damage = SkillDamageSerializer()
+

@@ -10,5 +10,6 @@ router_v1.register('characters', views.CharacterViewSet)
 router_v1.register('weapons', views.WeaponViewSet)
 
 urlpatterns = [
+    path('v1/calculate/', views.CalculationAPIView.as_view()),
     path('v1/', include(router_v1.urls))
 ]
