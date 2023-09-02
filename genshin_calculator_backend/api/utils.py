@@ -22,7 +22,7 @@ def get_character_stats(
         'type': character.weapon,
         'hp': json.loads(character.hp),
         'atk': json.loads(character.atk),
-        'defense': json.loads(character.defense),
+        'def': json.loads(character.defense),
         'normal_attack': json.loads(character.normal_atk),
         'skill': json.loads(character.skill),
         'burst': json.loads(character.burst),
@@ -51,17 +51,47 @@ def get_weapon_stats(
 
     return stats
 
-#
-# def calculate_skill_damage(
-#         character: Character,
-#         skill: Dict[str, Dict[str, str]],
-#         level: int
-# ) -> Dict[str, Dict[str, Union[int, float]]]:
-#
-#     return ...
+
+def calculate_skill_damage(
+        character: Character,
+        weapon: Weapon,
+        data: Dict[str, Dict[str, str]],
+        skill: Dict[str, str],
+        level: str
+) -> Dict[str, Dict[str, Union[int, float]]]:
+
+    skill_data = {}
+
+    for move, stats in skill.items():
+        stat = stats['Lv' + level]
+        if '%' in stat:
+            split_stat = stat.split(' ')
+            print(f"{move} {split_stat}")
+            if 'HP' in split_stat:
+                damage_stat = data['hp']
+            elif 'DEF' in split_stat:
+                damage_stat = data['def']
+            else:
+                damage_stat = data['atk']
+            for dmg in split_stat:
+                if '%' in dmg:
+                    new_dmg = dmg.replace('%', ' ').split(' ')
+                    damage = round(float(new_dmg[0]) * damage_stat / 100, 2)
+                    if not skill_data.get(move):
+                        skill_data[move] = str(damage)
+                    else:
+                        skill_data[move] += f" + {str(damage)}"
+                    skill_data[move] += f"{new_dmg[1]}"
+        else:
+            if not skill_data.get(move):
+                skill_data[move] = stats['Lv' + level]
+            else:
+                continue
+
+    return skill_data
 
 
-def sum_initial_attributes(
+def get_attributes(
         character: Character,
         weapon: Weapon,
         query_params,
@@ -91,21 +121,27 @@ def sum_initial_attributes(
     response_data['weapon_type'] = character_data['type']
     response_data['weapon'] = weapon_data['name']
     response_data['hp'] = int(character_data['hp'][character_level])
-    response_data['atk'] = (float(character_data['atk'][character_level]) +
-                            float(weapon_data['atk'][weapon_level]))
-    response_data['defense'] = float(
-        character_data['defense'][character_level]
-    )
-    response_data['skills'] = [
-        character_data['normal_attack'],
-        character_data['skill'],
-        character_data['burst']
-    ]
+    response_data['atk'] = round(
+        float(character_data['atk'][character_level]) +
+        float(weapon_data['atk'][weapon_level]), 2)
+    response_data['def'] = round(
+        float(character_data['def'][character_level]), 2)
+    skills = {
+        'normal_attack': character_data['normal_attack'],
+        'skill': character_data['skill'],
+        'burst': character_data['burst']
+    }
+    levels = {
+        'normal_attack': query_params['attack_level'],
+        'skill': query_params['skill_level'],
+        'burst': query_params['burst_level']
+    }
+    response_data['skills'] = []
 
-    # for skill in response_data['skills']:
-    #     for skill_stat in skill.values():
-    #         if '%' in skill_stat.split(' ')[-1]:
-    #
+    for skill, level in levels.items():
+        response_data['skills'].append(calculate_skill_damage(
+            character, weapon, response_data, skills[skill], level
+        ))
 
     return response_data
 

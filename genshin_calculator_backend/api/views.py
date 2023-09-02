@@ -47,7 +47,7 @@ class CalculationAPIView(APIView):
         except Weapon.DoesNotExist as e:
             return Response(f"Invalid weapon name! Error: {e}")
 
-        response_data = utils.sum_initial_attributes(
+        response_data = utils.get_attributes(
             character,
             weapon,
             get_data
