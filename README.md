@@ -1,7 +1,5 @@
 # Genshin Damage Calculator API
 
-### Description
-
 Once a backend part of whole project which hasn't launched, now it's a proof-of-concept independent API module for
 damage calculation of Genshin characters.<br>
 <br>
