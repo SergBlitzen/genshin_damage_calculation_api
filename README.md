@@ -1,5 +1,6 @@
 # Genshin Damage Calculator API
 
+### Description 
 Once a backend part of whole project which hasn't launched, now it's a proof-of-concept independent API module for
 damage calculation of Genshin characters.<br>
 <br>
@@ -18,7 +19,7 @@ Additionally used tools:
 <br>• BeautifulSoup4
 <br>• Dotenv
 
-## Current state
+### Current state
 Implemented database structure: models, serializers and endpoints for data representation. Further features like
 filtering and pagination is in progress.
 <br>
@@ -28,9 +29,10 @@ proper way to spread much different data in distinct tables.
 <br>Actual calculation is at early state: there is still no artefact support as well as many more features like passive
 stats and abilities. Basic damage calculation is implemented.
 
-## To-do
+### To-do
 • Tweaking with database as well as implementing more customized models for better calculation process.
-<br>• Adding containerization and workflows to easy deploy.
+<br>• Adding containerization and workflows for easy deploy.
+<br>• Adding test data.
 
 ## Launching project
 
