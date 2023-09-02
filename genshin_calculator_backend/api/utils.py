@@ -59,11 +59,23 @@ def calculate_skill_damage(
         skill: Dict[str, str],
         level: str
 ) -> Dict[str, Dict[str, Union[int, float]]]:
+    """
+    Main calculation function. Processes one skill at a time.
+
+    :param character: Current character.
+    :param weapon: Current weapon.
+    :param data: Dictionary of current character data.
+    :param skill: Current skill data.
+    :param level: Skill level
+    :return Dict[str, Dict[str, Union[int, float]]]: Dictionary of
+    calculated value.
+    """
 
     skill_data = {}
 
     for move, stats in skill.items():
         stat = stats['Lv' + level]
+        # Current implementation of damage skill recognition.
         if '%' in stat:
             split_stat = stat.split(' ')
             print(f"{move} {split_stat}")
