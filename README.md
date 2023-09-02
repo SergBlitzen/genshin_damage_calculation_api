@@ -13,6 +13,7 @@ resources while code in actual repo serves only as an example.<br>
 
 Based on:
 <br>• Python 3.10
+<br>• Django 4.1.4
 <br>• Django Rest Framework 3.14.0
 
 Additionally used tools:
@@ -23,14 +24,20 @@ Additionally used tools:
 Implemented database structure: models, serializers and endpoints for data representation. Further features like
 filtering and pagination is in progress.
 <br>
-<br>Actual calculation is in early state: there is still no artefact support as well as many more features like passive
-stats and abilities. Currently working on basic damage representation.
+<br>Base data are represented as dictionaries, so the main feature of database is storing them as JSON's, as there is no
+proper way to spread much different data in distinct tables.
+<br>
+<br>Actual calculation is at early state: there is still no artefact support as well as many more features like passive
+stats and abilities. Basic damage calculation is implemented.
+
+## To-do
+Tweaking with database as well as implementing more customized models for better calculation process.
 
 ## Launching project
 
 ### Interpreter settings
 
-Project only uses SQLite DB and launches locally without external tools.
+As for now, project only uses SQLite DB and launches locally without external tools.
 <br>
 <br>After cloning repo, install Python virtual env in root:
 <br>```python -m venv venv```
@@ -68,7 +75,6 @@ Launch server with:
 
 
 ## How to use
-
 As this is only an API module, usage is limited with accessing endpoints. Preferred tool is Postman.
 <br>All endpoints and viewsets are declared in "api" application.
 <br>Working endpoints:
