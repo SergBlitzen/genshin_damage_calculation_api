@@ -29,7 +29,8 @@ proper way to spread much different data in distinct tables.
 stats and abilities. Basic damage calculation is implemented.
 
 ## To-do
-Tweaking with database as well as implementing more customized models for better calculation process.
+• Tweaking with database as well as implementing more customized models for better calculation process.
+<br>• Adding containerization and workflows to easy deploy.
 
 ## Launching project
 
