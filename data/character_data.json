@@ -177,8 +177,8 @@
     }
   },
   {
-    "name": "test char 1",
-    "short_name": "testchar1",
+    "name": "test char 2",
+    "short_name": "testchar2",
     "weapon": "sword",
     "element": "electro",
     "hp": {
