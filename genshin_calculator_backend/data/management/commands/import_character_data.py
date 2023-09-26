@@ -28,22 +28,26 @@ class Command(BaseCommand):
         self.stdout.write("Starting to get characters data...")
         start = time.time()
 
-        for url in urls:
-            character_data = get_character_data(url)
-            for key, value in character_data.items():
-                if isinstance(value, dict):
-                    character_data[key] = json.dumps(value)
-            character_data.pop('lv')
-            try:
-                Character.objects.get_or_create(**character_data)
-                self.stdout.write(f"Added character data: {character_data['name']}")
-            except Exception as e:
-                self.stdout.write(f"Failed to add character data: {character_data['name']}."
-                                  f"Error: {e}")
-            time.sleep(1 + (random.randint(1, 100) / 100))
+        character_data = get_character_data(urls[0])
+        print(character_data)
 
-        end = time.time()
-        self.stdout.write(f"Data import complete. Time elapsed: {round(end - start)}")
+        # for url in urls:
+        #     character_data = get_character_data(url)
+        #     print(character_data)
+        #     for key, value in character_data.items():
+        #         if isinstance(value, dict):
+        #             character_data[key] = json.dumps(value)
+        #     character_data.pop('lv')
+        #     try:
+        #         Character.objects.get_or_create(**character_data)
+        #         self.stdout.write(f"Added character data: {character_data['name']}")
+        #     except Exception as e:
+        #         self.stdout.write(f"Failed to add character data: {character_data['name']}."
+        #                           f"Error: {e}")
+        #     time.sleep(1 + (random.randint(1, 100) / 100))
+        #
+        # end = time.time()
+        # self.stdout.write(f"Data import complete. Time elapsed: {round(end - start)}")
 
 
 def get_character_urls(pages_url: str) -> List[str]:
