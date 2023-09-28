@@ -28,6 +28,10 @@ class Loader:
     bow_url: str = os.getenv('BOW_URL')
     catalyst_url: str = os.getenv('CATALYST_URL')
 
+    # URL indexes
+    start_char_index: int = int(os.getenv('START_CHAR_INDEX'))
+    end_char_index: int = int(os.getenv('END_CHAR_INDEX'))
+
     # Main data.
     main_data = os.getenv('MAIN_DATA')
 
@@ -44,6 +48,9 @@ class Loader:
     character_skill_class: str = os.getenv('SKILL_CLASS')
     character_dmg_class: str = os.getenv('DMG_CLASS')
     character_elem_number: int = int(os.getenv('CHARACTER_ELEMENTS_NUMBER'))
+    character_stats_elem_number: int = int(
+        os.getenv('CHARACTER_STATS_ELEMENT_NUMBER')
+    )
 
     # Weapon page elements.
     weapon_elem_number: int = int(os.getenv('WEAPON_ELEMENTS_NUMBER'))

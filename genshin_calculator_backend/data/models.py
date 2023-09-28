@@ -1,6 +1,17 @@
 from django.db import models
 
 
+class Character(models.Model):
+    name = models.CharField(max_length=50)
+    short_name = models.CharField(max_length=50, unique=True)
+    weapon = models.CharField(max_length=20)
+    element = models.CharField(max_length=20)
+    ascension_name = models.CharField(max_length=50)
+
+    def __str__(self):
+        return self.name
+
+
 class BaseStatModel(models.Model):
     lv1 = models.CharField(max_length=20)
     lv20 = models.CharField(max_length=20)
@@ -19,17 +30,6 @@ class BaseStatModel(models.Model):
 
     class Meta:
         abstract = True
-
-
-class Character(models.Model):
-    name = models.CharField(max_length=50)
-    short_name = models.CharField(max_length=50)
-    weapon = models.CharField(max_length=20)
-    element = models.CharField(max_length=20)
-    ascension_name = models.CharField(max_length=50)
-
-    def __str__(self):
-        return self.name
 
 
 class CharHP(BaseStatModel):
@@ -60,22 +60,6 @@ class AscensionStat(BaseStatModel):
     character = models.OneToOneField(
         Character,
         related_name='ascension_stat',
-        on_delete=models.CASCADE
-    )
-
-
-class CharCritDMG(BaseStatModel):
-    character = models.OneToOneField(
-        Character,
-        related_name='crit_dmg',
-        on_delete=models.CASCADE
-    )
-
-
-class CharCritRate(BaseStatModel):
-    character = models.OneToOneField(
-        Character,
-        related_name='crit_rate',
         on_delete=models.CASCADE
     )
 

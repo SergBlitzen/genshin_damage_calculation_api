@@ -1,6 +1,3 @@
-import json
-import os
-
 import requests
 import re
 import time
@@ -11,7 +8,7 @@ from bs4 import BeautifulSoup, ResultSet
 
 from django.core.management import BaseCommand
 
-from data.models import Character
+from data.models import Character, CharHP, CharAtk, CharDef, AscensionStat, CharNormAtk, CharSkill, CharBurst, Move
 from genshin_calculator.settings import env_loader
 
 
@@ -22,32 +19,67 @@ class Command(BaseCommand):
         Main handler for import page data.
         """
 
+        start = time.time()
         main_url = env_loader.character_urls
         urls = get_character_urls(main_url)
         self.stdout.write("Got character URLs!")
         self.stdout.write("Starting to get characters data...")
-        start = time.time()
 
-        character_data = get_character_data(urls[0])
-        print(character_data)
+        for url in urls:
+            character_data = get_character_data(url)
+            self.stdout.write(f"Got character data: {character_data['name']}!")
 
-        # for url in urls:
-        #     character_data = get_character_data(url)
-        #     print(character_data)
-        #     for key, value in character_data.items():
-        #         if isinstance(value, dict):
-        #             character_data[key] = json.dumps(value)
-        #     character_data.pop('lv')
-        #     try:
-        #         Character.objects.get_or_create(**character_data)
-        #         self.stdout.write(f"Added character data: {character_data['name']}")
-        #     except Exception as e:
-        #         self.stdout.write(f"Failed to add character data: {character_data['name']}."
-        #                           f"Error: {e}")
-        #     time.sleep(1 + (random.randint(1, 100) / 100))
-        #
-        # end = time.time()
-        # self.stdout.write(f"Data import complete. Time elapsed: {round(end - start)}")
+            try:
+                character = Character.objects.create(
+                    name=character_data['name'],
+                    short_name=character_data['short_name'],
+                    weapon=character_data['weapon'],
+                    element=character_data['element'],
+                    ascension_name=character_data['ascension_stat']
+                )
+                CharHP.objects.create(
+                    character=character,
+                    **character_data['hp']
+                )
+                CharAtk.objects.create(
+                    character=character,
+                    **character_data['atk']
+                )
+                CharDef.objects.create(
+                    character=character,
+                    **character_data['defense']
+                )
+                AscensionStat.objects.create(
+                    character=character,
+                    **character_data['ascension']
+                )
+
+                char_moves = {
+                    'normal_atk': CharNormAtk,
+                    'skill': CharSkill,
+                    'burst': CharBurst
+                }
+
+                for skill_name, model in char_moves.items():
+                    skill = model.objects.create(
+                        character=character
+                    )
+                    for name, stat in character_data[skill_name].items():
+                        move_obj = Move.objects.create(
+                            name=name,
+                            **stat
+                        )
+                        skill.moves.add(move_obj)
+            except Exception as e:
+                self.stdout.write(
+                    f"Error while processing character {character_data['name']}."
+                    f"Text: {e}"
+                )
+
+            time.sleep(1 + (random.randint(1, 100) / 100))
+
+        end = time.time()
+        self.stdout.write(f"Data import complete. Time elapsed: {round(end - start)}")
 
 
 def get_character_urls(pages_url: str) -> List[str]:
@@ -68,8 +100,8 @@ def get_character_urls(pages_url: str) -> List[str]:
     soup = BeautifulSoup(request_data, "html.parser")
     char_data: str = env_loader.main_data
     chars = soup.find(text=re.compile(char_data))
-    start_char_index: int = env_loader.start_char_ind
-    end_char_index: int = env_loader.end_char_ind
+    start_char_index: int = env_loader.start_char_index
+    end_char_index: int = env_loader.end_char_index
     chars: str = str(chars[start_char_index:end_char_index])
 
     # Main loop for getting all URLs. As data is stored in
@@ -126,15 +158,11 @@ def get_character_data(char_url: str) -> Dict[str, str | Dict[str, str | Dict[st
     get_character_skills(skill, char_data, skill_type='skill')
     # Check for an alternate sprint.
     if all([i.find(class_="genshin_table skill_dmg_table") for i in main_skills[:4]]):
-        # Sprint table if character has one.
-        sprint = main_skills[2]
-        get_character_skills(sprint, char_data, skill_type='sprint')
         # Elemental burst table.
         burst = main_skills[3]
     else:
         burst = main_skills[2]
     get_character_skills(burst, char_data, skill_type='burst')
-    print(f"Got character data: {char_data['name']}")
 
     return char_data
 
@@ -149,7 +177,6 @@ def get_main_info(char_page: ResultSet, char_data: Dict) -> None:
     """
 
     name = char_page[2].text
-    print(f'Processing character: {name}')
     char_data['name'] = name
     short_name = name.lower().replace(' ', '')
     char_data['short_name'] = short_name
@@ -172,13 +199,12 @@ def get_character_main_stats(char_page: BeautifulSoup, char_data: Dict) -> None:
     # Stat names for creating new variable dicts.
     main_elem: str = env_loader.main_elem
     second_elem: str = env_loader.second_elem
-    stats_names = char_page.find(main_elem).find_all(second_elem)[:7]
+    stats_names = char_page.find(second_elem).find_all(main_elem)[:7]
     for name in stats_names:
-        # Replace bonus stat with ascension.
+        # "Bonus" means ascension stat.
         if 'Bonus' in name.text:
             char_data['ascension'] = {}
-        # Replace "def" name with "defense" in order to prevent
-        # future conflicts with Python syntax.
+        # Preventing future conflicts with Python syntax.
         elif 'Def' in name.text:
             char_data['defense'] = {}
         else:
@@ -190,16 +216,17 @@ def get_character_main_stats(char_page: BeautifulSoup, char_data: Dict) -> None:
         row = stat.find_all(main_elem)
         # Enumerate names for index access.
         for num, j in enumerate(stats_names):
+            lv = 'lv' + row[0].text.lower().replace('+', 'plus')
             if 'Bonus' in j.text:
                 # Each iteration fills the current level values.
                 # Num coordinates needed stat name index and row element.
-                char_data['ascension'][row[0].text.lower()] = stat.find_all("td")[num].text
+                char_data['ascension'][lv] = stat.find_all("td")[num].text
                 ascension = j.text[6:]
                 char_data['ascension_stat'] = ascension.replace('%', '')
             elif 'Def' in j.text:
-                char_data['defense'][row[0].text.lower()] = stat.find_all("td")[num].text
+                char_data['defense'][lv] = stat.find_all("td")[num].text
             else:
-                char_data[j.text.lower().replace('%', '')][row[0].text.lower()] = stat.find_all("td")[num].text
+                char_data[j.text.lower().replace('%', '')][lv] = stat.find_all("td")[num].text
     return None
 
 
@@ -216,7 +243,7 @@ def get_character_skills(skill_table: BeautifulSoup, char_data: Dict, skill_type
     char_data[skill_type] = {}
 
     # Getting elements for page parsing.
-    main_elem: str = env_loader.ain_elem
+    main_elem: str = env_loader.main_elem
     second_elem: str = env_loader.second_elem
     dmg_class: str = env_loader.character_dmg_class
 
@@ -236,12 +263,16 @@ def get_character_skills(skill_table: BeautifulSoup, char_data: Dict, skill_type
     # The first element of list in an empty "td" tag.
     levels = list(map(BeautifulSoup.get_text, skill_list[0][1:]))
     skill_list.pop(0)
+    for i in range(len(levels)):
+        levels[i] = levels[i].lower()
 
     # Parsing normal atk stats. First element in row is a stat name,
     # and the rest of data are stripped from tags and zipped with levels
     # list into dictionary with same name.
     for stat in skill_list:
         stat_name = stat[0].text.lower().replace('-', '_').replace('%', '_').replace('/', '_').replace(' ', '_')
+        # Adding short character name to skill name for easy identifying.
+        stat_name = char_data['short_name'] + '_' + stat_name
         stat_dmg_levels = []
         for dmg_percent in stat[1:]:
             stat_dmg_levels.append(dmg_percent.text)
