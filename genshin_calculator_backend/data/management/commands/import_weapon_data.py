@@ -1,4 +1,3 @@
-import json
 import requests
 import re
 import time
@@ -9,7 +8,7 @@ from bs4 import BeautifulSoup
 
 from django.core.management import BaseCommand
 
-from data.models import Weapon
+from data.models import Weapon, WeaponAtk, WeaponSub
 from genshin_calculator.settings import env_loader
 
 
@@ -41,16 +40,28 @@ class Command(BaseCommand):
         # Parsing data from each url and uploading to database.
         for weapon_url in weapon_urls:
             weapon_data = get_weapon_data(weapon_url)
-            for key, value in weapon_data.items():
-                # Dictionaries stored as JSONs.
-                if isinstance(value, dict):
-                    weapon_data[key] = json.dumps(value)
             try:
-                Weapon.objects.get_or_create(**weapon_data)
-                self.stdout.write(f"Added weapon data: {weapon_data['name']}")
+                cur_weapon = Weapon.objects.create(
+                    name=weapon_data['name'],
+                    short_name=weapon_data['short_name'],
+                    weapon_type=weapon_data['type'],
+                    substat_name=weapon_data['substat_name']
+                )
+                WeaponAtk.objects.create(
+                    weapon=cur_weapon,
+                    **weapon_data['atk']
+                )
+                WeaponSub.objects.create(
+                    weapon=cur_weapon,
+                    **weapon_data['substat_lv']
+                )
+                self.stdout.write(
+                    f"Added weapon data: {weapon_data['name']}"
+                )
             except Exception as e:
-                self.stdout.write(f"Failed to add weapon data: {weapon_data['name']}"
-                                  f"Error: {e}")
+                self.stdout.write(
+                    f"Failed to add weapon data: {weapon_data['name']}"
+                    f"Error: {e}")
             time.sleep(1 + (random.randint(1, 100) / 100))
 
         end = time.time()
@@ -128,7 +139,8 @@ def get_weapon_data(url) -> Dict[str, str | Dict[str, str]]:
     # List of levels to stitch stats to.
     levels = []
     for elem in weapon_stats:
-        levels.append(elem.find_all(env_loader.main_elem)[0].text)
+        level = elem.find_all(env_loader.main_elem)[0].text.lower().replace('+', 'plus')
+        levels.append('lv' + level)
 
     # Initializing stat lists.
     weapon_atk = []

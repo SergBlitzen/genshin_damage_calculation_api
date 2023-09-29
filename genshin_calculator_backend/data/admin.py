@@ -1,6 +1,7 @@
 from django.contrib import admin
 
-from .models import Character, CharHP, CharNormAtk, Move, CharAtk, CharDef, CharSkill, CharBurst
+from .models import Character, CharHP, CharNormAtk, Move, CharAtk, CharDef, CharSkill, CharBurst, Weapon, WeaponAtk, \
+    WeaponSub
 
 app_name = 'data'
 
@@ -43,3 +44,18 @@ class CharBurstAdmin(admin.ModelAdmin):
 @admin.register(Move)
 class MoveAdmin(admin.ModelAdmin):
     list_display = ['name']
+
+
+@admin.register(Weapon)
+class WeaponAdmin(admin.ModelAdmin):
+    list_display = ['name']
+
+
+@admin.register(WeaponAtk)
+class WeaponAtkAdmin(admin.ModelAdmin):
+    list_display = ['weapon']
+
+
+@admin.register(WeaponSub)
+class WeaponSubAdmin(admin.ModelAdmin):
+    list_display = ['weapon']

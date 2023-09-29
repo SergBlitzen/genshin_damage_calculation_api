@@ -13,20 +13,20 @@ class Character(models.Model):
 
 
 class BaseStatModel(models.Model):
-    lv1 = models.CharField(max_length=20)
-    lv20 = models.CharField(max_length=20)
-    lv20plus = models.CharField(max_length=20)
-    lv40 = models.CharField(max_length=20)
-    lv40plus = models.CharField(max_length=20)
-    lv50 = models.CharField(max_length=20)
-    lv50plus = models.CharField(max_length=20)
-    lv60 = models.CharField(max_length=20)
-    lv60plus = models.CharField(max_length=20)
-    lv70 = models.CharField(max_length=20)
-    lv70plus = models.CharField(max_length=20)
-    lv80 = models.CharField(max_length=20)
-    lv80plus = models.CharField(max_length=20)
-    lv90 = models.CharField(max_length=20)
+    lv1 = models.CharField(max_length=20, null=True)
+    lv20 = models.CharField(max_length=20, null=True)
+    lv20plus = models.CharField(max_length=20, null=True)
+    lv40 = models.CharField(max_length=20, null=True)
+    lv40plus = models.CharField(max_length=20, null=True)
+    lv50 = models.CharField(max_length=20, null=True)
+    lv50plus = models.CharField(max_length=20, null=True)
+    lv60 = models.CharField(max_length=20, null=True)
+    lv60plus = models.CharField(max_length=20, null=True)
+    lv70 = models.CharField(max_length=20, null=True)
+    lv70plus = models.CharField(max_length=20, null=True)
+    lv80 = models.CharField(max_length=20, null=True)
+    lv80plus = models.CharField(max_length=20, null=True)
+    lv90 = models.CharField(max_length=20, null=True)
 
     class Meta:
         abstract = True
@@ -87,7 +87,6 @@ class Move(models.Model):
 
 
 class CharNormAtk(models.Model):
-    name = models.CharField(max_length=200)
     character = models.ForeignKey(
         Character,
         related_name='normal_atk',
@@ -102,7 +101,6 @@ class CharNormAtk(models.Model):
 
 
 class CharSkill(models.Model):
-    name = models.CharField(max_length=200)
     character = models.ForeignKey(
         Character,
         related_name='skill',
@@ -117,7 +115,6 @@ class CharSkill(models.Model):
 
 
 class CharBurst(models.Model):
-    name = models.CharField(max_length=200)
     character = models.ForeignKey(
         Character,
         related_name='burst',
@@ -129,3 +126,29 @@ class CharBurst(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class Weapon(models.Model):
+    name = models.CharField(max_length=200)
+    short_name = models.CharField(max_length=200)
+    weapon_type = models.CharField(max_length=500)
+    substat_name = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.name
+
+
+class WeaponAtk(BaseStatModel):
+    weapon = models.ForeignKey(
+        Weapon,
+        related_name='atk',
+        on_delete=models.CASCADE
+    )
+
+
+class WeaponSub(BaseStatModel):
+    weapon = models.ForeignKey(
+        Weapon,
+        related_name='sub',
+        on_delete=models.CASCADE
+    )
